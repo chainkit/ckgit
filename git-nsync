@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ORIGIN=${1:-origin}
+git push -f "${ORIGIN}" refs/notes/\*
