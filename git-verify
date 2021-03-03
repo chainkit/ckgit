@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+HASH=${1:-$(git rev-parse HEAD)}
+ASSETID=$(git notes show "${HASH}" 2>&1 | grep 'Asset Id:' | cut -d: -f 2 | cut -d, -f 1 | awk '{print $1}')
+STORAGE=$(git notes show "${HASH}" 2>&1 | grep 'Asset Id:' | cut -d: -f 3 | cut -d, -f 1 | awk '{print $1}')
+[ -z "$ASSETID" ] && { echo "No Asset Id found. Use git-register first." >&2; exit 1; }
+ckcli verify -h "${HASH}" -i "${ASSETID}" -b"${STORAGE:-${CKSTORAGE:-pencil}}"

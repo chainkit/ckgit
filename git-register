@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+HASH=${1:-$(git rev-parse HEAD)}
+ASSETID=$(git notes show "${HASH}" 2>&1 | grep 'Asset Id:' | cut -d: -f 2 | cut -d, -f 1 | awk '{print $1}')
+[ -z "$ASSETID" ] || { echo "Asset Id found. Use git-verify." >&2; exit 1; }
+
+GENASSETID=$(ckcli register -h "${HASH}" 2>&1 | grep 'Your Entity ID' | cut -d: -f 2 | awk '{print $1}')
+[ -z "$GENASSETID" ] && { echo "Unable to Register ${HASH}. Please Check Credentials." >&2; exit 1; }
+if git notes add "${HASH}" -m "Asset Id: ${GENASSETID}, Storage: ${CKSTORAGE:-pencil}"; then
+    echo "Registered: ${HASH} with Asset Id: ${GENASSETID}."
+else
+    echo "Unable to Register ${HASH}."
+    exit 1
+fi
